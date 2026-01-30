@@ -73,3 +73,4 @@ Open `ar-close-full-mockup.html` in any modern browser to interact with the prot
 ---
 
 Built with Claude
+
