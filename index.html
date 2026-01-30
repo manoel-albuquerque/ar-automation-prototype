@@ -1298,6 +1298,177 @@
                   </div>
                 </Card>
 
+                {/* Gmail Parsed Invoices Gap */}
+                <Card style={{ marginBottom: '16px', border: `1px solid ${colors.warning}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: colors.slate, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Icon name="mail" size={16} color={colors.warning} /> Gmail: Invoices Not in QBO
+                    </h3>
+                    <Badge variant="warningLight">{mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').length} Found</Badge>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Gmail Invoices Parsed</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.slate }}>{mockGmailInvoices.length}</div>
+                      <div style={{ fontSize: '12px', color: colors.slateLight }}>from email attachments</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.primaryLight, borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Matched to QBO</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.primary }}>{mockGmailInvoices.filter(g => g.matchStatus === 'matched').length}</div>
+                      <div style={{ fontSize: '12px', color: colors.primary }}>invoices matched</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', color: '#E65100', marginBottom: '4px' }}>Missing in QBO</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: '#E65100' }}>{mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').length}</div>
+                      <div style={{ fontSize: '12px', color: '#E65100' }}>{fmt(mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').reduce((sum, g) => sum + g.amount, 0))} at risk</div>
+                    </div>
+                  </div>
+
+                  {/* Expandable Missing Invoice Details */}
+                  <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
+                    <div onClick={() => toggleSection('gmailMissingInvoices')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.gmailMissingInvoices ? '12px' : 0 }}>
+                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.warning }}>View Missing Invoice Details ({mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').length})</span>
+                      <Icon name={expandedSections.gmailMissingInvoices ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
+                    </div>
+
+                    {expandedSections.gmailMissingInvoices && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').map((inv, i) => (
+                          <div key={i} style={{ padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px', border: `1px solid ${colors.warning}` }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                              <div>
+                                <div style={{ fontWeight: 600, color: colors.slate, fontSize: '14px' }}>{inv.customer}</div>
+                                <div style={{ fontSize: '12px', color: colors.slateLight }}>{inv.id} • {inv.date}</div>
+                              </div>
+                              <div style={{ fontWeight: 700, color: colors.warning, fontSize: '16px' }}>{fmt(inv.amount)}</div>
+                            </div>
+                            <div style={{ fontSize: '12px', color: colors.slate, marginBottom: '4px' }}><strong>Subject:</strong> {inv.subject}</div>
+                            <div style={{ fontSize: '12px', color: colors.slateLight, marginBottom: '4px' }}><strong>From:</strong> {inv.sender}</div>
+                            <div style={{ fontSize: '12px', color: colors.slateLight }}><strong>Attachment:</strong> <a href="#" style={{ color: colors.secondary }}>{inv.attachmentName}</a></div>
+                            <div style={{ marginTop: '8px', padding: '8px', backgroundColor: colors.white, borderRadius: '4px', fontSize: '11px', color: colors.warning }}>
+                              <Icon name="alert-triangle" size={12} style={{ marginRight: '4px' }} />
+                              This invoice attachment was found in Gmail but has no matching invoice in QBO. Will be flagged for invoice creation.
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Gmail Payment Confirmations */}
+                  {mockGmailPayments.filter(p => p.matchStatus === 'missing_in_qbo').length > 0 && (
+                    <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px', marginTop: '12px' }}>
+                      <div onClick={() => toggleSection('gmailMissingPayments')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.gmailMissingPayments ? '12px' : 0 }}>
+                        <span style={{ fontSize: '13px', fontWeight: 500, color: colors.error }}>Payment Confirmations Not in QBO ({mockGmailPayments.filter(p => p.matchStatus === 'missing_in_qbo').length})</span>
+                        <Icon name={expandedSections.gmailMissingPayments ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
+                      </div>
+
+                      {expandedSections.gmailMissingPayments && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          {mockGmailPayments.filter(p => p.matchStatus === 'missing_in_qbo').map((pmt, i) => (
+                            <div key={i} style={{ padding: '12px', backgroundColor: colors.errorLight, borderRadius: '8px', border: `1px solid ${colors.error}` }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                <div>
+                                  <div style={{ fontWeight: 600, color: colors.slate, fontSize: '14px' }}>{pmt.customer}</div>
+                                  <div style={{ fontSize: '12px', color: colors.slateLight }}>{pmt.id} • {pmt.date}</div>
+                                </div>
+                                <div style={{ fontWeight: 700, color: colors.error, fontSize: '16px' }}>{fmt(pmt.amount)}</div>
+                              </div>
+                              <div style={{ fontSize: '12px', color: colors.slate, marginBottom: '4px' }}><strong>Subject:</strong> {pmt.subject}</div>
+                              <div style={{ fontSize: '12px', color: colors.slateLight }}><strong>From:</strong> {pmt.sender}</div>
+                              <div style={{ marginTop: '8px', padding: '8px', backgroundColor: colors.white, borderRadius: '4px', fontSize: '11px', color: colors.error }}>
+                                <Icon name="alert-circle" size={12} style={{ marginRight: '4px' }} />
+                                Payment confirmation found in Gmail but not recorded in QBO. This may indicate unrecorded cash received.
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Card>
+
+                {/* Spreadsheet Discrepancies */}
+                <Card style={{ marginBottom: '16px', border: `1px solid ${colors.warning}` }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: colors.slate, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Icon name="file-spreadsheet" size={16} color={colors.warning} /> Uploaded Spreadsheet: Items Not in QBO
+                    </h3>
+                    <Badge variant="warningLight">{mockSpreadsheetData.discrepancies.length} Discrepancies</Badge>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '140px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Spreadsheet Records</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.slate }}>{mockSpreadsheetData.totalRecords}</div>
+                      <div style={{ fontSize: '12px', color: colors.slateLight }}>{mockSpreadsheetData.fileName}</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: '140px', padding: '12px', backgroundColor: colors.primaryLight, borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Matched to QBO</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.primary }}>{mockSpreadsheetData.totalRecords - mockSpreadsheetData.discrepancies.length}</div>
+                      <div style={{ fontSize: '12px', color: colors.primary }}>transactions matched</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: '140px', padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', color: '#E65100', marginBottom: '4px' }}>Discrepancies</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: '#E65100' }}>{mockSpreadsheetData.discrepancies.length}</div>
+                      <div style={{ fontSize: '12px', color: '#E65100' }}>{fmt(mockSpreadsheetData.discrepancies.reduce((sum, d) => sum + d.amount, 0))} total</div>
+                    </div>
+                  </div>
+
+                  {/* Expandable Discrepancy Details */}
+                  <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
+                    <div onClick={() => toggleSection('spreadsheetDiscrepancies')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.spreadsheetDiscrepancies ? '12px' : 0 }}>
+                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.warning }}>View Discrepancy Details ({mockSpreadsheetData.discrepancies.length})</span>
+                      <Icon name={expandedSections.spreadsheetDiscrepancies ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
+                    </div>
+
+                    {expandedSections.spreadsheetDiscrepancies && (
+                      <div style={{ border: `1px solid ${colors.border}`, borderRadius: '8px', overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                          <thead>
+                            <tr style={{ backgroundColor: colors.background }}>
+                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Type</th>
+                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Reference</th>
+                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Customer</th>
+                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Date</th>
+                              <th style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Amount</th>
+                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Issue</th>
+                              <th style={{ padding: '10px', textAlign: 'center', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {mockSpreadsheetData.discrepancies.map((disc, i) => (
+                              <tr key={i} style={{ borderTop: `1px solid ${colors.border}`, backgroundColor: colors.warningLight }}>
+                                <td style={{ padding: '10px' }}>
+                                  <Badge variant={disc.type === 'invoice' ? 'purpleLight' : disc.type === 'payment' ? 'blueLight' : 'tealLight'} size="sm">
+                                    {disc.type}
+                                  </Badge>
+                                </td>
+                                <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '11px', color: colors.slate }}>{disc.ref}</td>
+                                <td style={{ padding: '10px', fontWeight: 500, color: colors.slate }}>{disc.customer}</td>
+                                <td style={{ padding: '10px', color: colors.slateLight }}>{disc.date}</td>
+                                <td style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.warning }}>{fmt(disc.amount)}</td>
+                                <td style={{ padding: '10px', fontSize: '11px', color: colors.error }}>{disc.issue}</td>
+                                <td style={{ padding: '10px', textAlign: 'center' }}>
+                                  <Badge variant={disc.action === 'investigate' ? 'warningLight' : 'secondaryLight'} size="sm">
+                                    {disc.action === 'create_invoice' ? 'Create Invoice' : disc.action === 'create_credit' ? 'Create Credit' : 'Investigate'}
+                                  </Badge>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ marginTop: '12px', padding: '10px', backgroundColor: '#F8F9FA', borderRadius: '6px', fontSize: '11px', color: colors.slateLight }}>
+                    <Icon name="info" size={12} style={{ marginRight: '4px' }} />
+                    <strong style={{ color: colors.slate }}>Source:</strong> {mockSpreadsheetData.fileName} • Uploaded {mockSpreadsheetData.uploadDate} • {mockSpreadsheetData.totalRecords} total records compared
+                  </div>
+                </Card>
+
                 {/* Unapplied Payments */}
                 <Card style={{ marginBottom: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
