@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AR Close Automation - QuickBooks</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Lucide icons as simple SVG components
+    const Icon = ({ name, size = 18, color = 'currentColor', style = {} }) => {
+      const icons = {
+        'check-circle': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22,4 12,14.01 9,11.01"/>
+          </svg>
+        ),
+        'x-circle': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+        ),
+        'chevron-down': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <polyline points="6,9 12,15 18,9"/>
+          </svg>
+        ),
+        'chevron-right': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <polyline points="9,18 15,12 9,6"/>
+          </svg>
+        ),
+        'calendar': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        ),
+        'play': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <polygon points="5,3 19,12 5,21 5,3"/>
+          </svg>
+        ),
+        'history': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/>
+            <path d="M12 7v5l4 2"/>
+          </svg>
+        ),
+        'link-2': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+        ),
+        'log-out': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        ),
+        'loader-2': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{...style, animation: 'spin 1s linear infinite'}}>
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        ),
+        'file-text': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/>
+          </svg>
+        ),
+        'dollar-sign': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+        ),
+        'credit-card': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        ),
+        'sparkles': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+          </svg>
+        ),
+        'check': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <polyline points="20,6 9,17 4,12"/>
+          </svg>
+        ),
+        'x': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        ),
+        'external-link': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        ),
+        'refresh-cw': (
+          <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
+            <polyline points="23,4 23,10 17,10"/><polyline points="1,20 1,14 7,14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        ),
+      };
+      return icons[name] || null;
+    };
+
+    // QuickBooks-inspired color palette
+    const colors = {
+      primary: '#2CA01C',
+      primaryDark: '#1E7A14',
+      primaryLight: '#E8F5E6',
+      secondary: '#0077C5',
+      secondaryLight: '#E6F3FA',
+      slate: '#393A3D',
+      slateLight: '#6B6C72',
+      background: '#F4F5F7',
+      white: '#FFFFFF',
+      border: '#D4D7DC',
+      warning: '#FF9800',
+      warningLight: '#FFF3E0',
+      error: '#D32F2F',
+      errorLight: '#FFEBEE',
+      purple: '#7B1FA2',
+      purpleLight: '#F3E5F5',
+    };
+
+    // Mock data
+    const mockInvoices = [
+      { id: 'INV-001', docNum: '1042', customer: 'Acme Corp', date: '2024-01-15', dueDate: '2024-02-14', balance: 4500.00 },
+      { id: 'INV-002', docNum: '1043', customer: 'TechStart LLC', date: '2024-01-18', dueDate: '2024-02-17', balance: 2250.00 },
+      { id: 'INV-003', docNum: '1044', customer: 'Global Industries', date: '2024-01-20', dueDate: '2024-02-19', balance: 8750.00 },
+      { id: 'INV-004', docNum: '1045', customer: 'Acme Corp', date: '2024-01-22', dueDate: '2024-02-21', balance: 1500.00 },
+      { id: 'INV-005', docNum: '1046', customer: 'Smith & Co', date: '2024-01-25', dueDate: '2024-02-24', balance: 3200.00 },
+    ];
+
+    const mockPayments = [
+      { id: 'PMT-001', customer: 'Acme Corp', date: '2024-01-28', total: 6000.00, unapplied: 6000.00, ref: 'CHK-8842', memo: 'Jan invoices' },
+      { id: 'PMT-002', customer: 'TechStart LLC', date: '2024-01-29', total: 2250.00, unapplied: 2250.00, ref: 'ACH-1129', memo: '' },
+      { id: 'PMT-003', customer: 'Global Industries', date: '2024-01-30', total: 8750.00, unapplied: 8750.00, ref: 'WIRE-445', memo: 'Payment for inv 1044' },
+      { id: 'PMT-004', customer: 'Smith & Co', date: '2024-01-30', total: 3000.00, unapplied: 3000.00, ref: 'CHK-2201', memo: 'Partial' },
+    ];
+
+    const mockMatchesData = [
+      {
+        tier: 1, confidence: 'exact', paymentId: 'PMT-002', paymentAmount: 2250.00, invoiceIds: ['INV-002'], amountApplied: 2250.00,
+        reasoning: "Perfect match: Payment amount of $2,250.00 exactly matches Invoice #1043 balance. Customer names match (TechStart LLC). Payment date (Jan 29) is after invoice date (Jan 18). ACH reference confirms electronic payment.",
+        approved: true
+      },
+      {
+        tier: 1, confidence: 'exact', paymentId: 'PMT-003', paymentAmount: 8750.00, invoiceIds: ['INV-003'], amountApplied: 8750.00,
+        reasoning: "Perfect match: Payment amount of $8,750.00 exactly matches Invoice #1044 balance. Customer names match (Global Industries). Memo explicitly references 'inv 1044'. Wire transfer provides reliable payment method.",
+        approved: true
+      },
+      {
+        tier: 2, confidence: 'high', paymentId: 'PMT-001', paymentAmount: 6000.00, invoiceIds: ['INV-001', 'INV-004'], amountApplied: 6000.00,
+        reasoning: "Multi-invoice match: Payment of $6,000.00 from Acme Corp matches combined balance of Invoice #1042 ($4,500) + Invoice #1045 ($1,500) = $6,000. Memo mentions 'Jan invoices' supporting batch payment. Customer match confirmed.",
+        approved: true
+      },
+      {
+        tier: 3, confidence: 'medium', paymentId: 'PMT-004', paymentAmount: 3000.00, invoiceIds: ['INV-005'], amountApplied: 3000.00, writeOff: 200.00,
+        reasoning: "Partial match with small variance: Payment of $3,000 from Smith & Co is $200 less than Invoice #1046 balance of $3,200. Memo indicates 'Partial' payment. Recommend applying $3,000 and flagging $200 remaining balance for follow-up or write-off review.",
+        approved: true
+      },
+    ];
+
+    const mockExecutionResults = [
+      { actionType: 'Apply Payment', paymentId: 'PMT-002', invoiceIds: ['INV-002'], qboTxnId: 'TXN-88291', status: 'success' },
+      { actionType: 'Apply Payment', paymentId: 'PMT-003', invoiceIds: ['INV-003'], qboTxnId: 'TXN-88292', status: 'success' },
+      { actionType: 'Apply Payment', paymentId: 'PMT-001', invoiceIds: ['INV-001', 'INV-004'], qboTxnId: 'TXN-88293', status: 'success' },
+      { actionType: 'Apply Payment', paymentId: 'PMT-004', invoiceIds: ['INV-005'], qboTxnId: 'TXN-88294', status: 'success' },
+    ];
+
+    const mockRunHistory = [
+      { runId: 'run_8a7f3c2d', closeDate: '2024-01-30', status: 'completed', matchCount: 4, totalMatched: 20200.00 },
+      { runId: 'run_6b4e1a9f', closeDate: '2024-01-23', status: 'completed', matchCount: 7, totalMatched: 34500.00 },
+      { runId: 'run_2c8d5e7a', closeDate: '2024-01-16', status: 'completed', matchCount: 5, totalMatched: 18750.00 },
+      { runId: 'run_9f3a2b1c', closeDate: '2024-01-09', status: 'completed', matchCount: 3, totalMatched: 12200.00 },
+    ];
+
+    // Components
+    const Badge = ({ children, variant = 'default', size = 'md' }) => {
+      const variants = {
+        default: { bg: colors.slateLight, text: colors.white },
+        success: { bg: colors.primary, text: colors.white },
+        successLight: { bg: colors.primaryLight, text: colors.primaryDark },
+        warning: { bg: colors.warning, text: colors.white },
+        warningLight: { bg: colors.warningLight, text: '#E65100' },
+        error: { bg: colors.error, text: colors.white },
+        errorLight: { bg: colors.errorLight, text: colors.error },
+        blue: { bg: colors.secondary, text: colors.white },
+        blueLight: { bg: colors.secondaryLight, text: colors.secondary },
+        purple: { bg: colors.purple, text: colors.white },
+        purpleLight: { bg: colors.purpleLight, text: colors.purple },
+        orange: { bg: '#FF6D00', text: colors.white },
+        orangeLight: { bg: '#FFF3E0', text: '#E65100' },
+      };
+      const sizes = { sm: { padding: '2px 8px', fontSize: '11px' }, md: { padding: '4px 12px', fontSize: '12px' } };
+      const style = variants[variant] || variants.default;
+      const sizeStyle = sizes[size] || sizes.md;
+      return (
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: '4px', padding: sizeStyle.padding,
+          borderRadius: '4px', fontSize: sizeStyle.fontSize, fontWeight: 600,
+          backgroundColor: style.bg, color: style.text, textTransform: 'uppercase', letterSpacing: '0.5px',
+        }}>
+          {children}
+        </span>
+      );
+    };
+
+    const Card = ({ children, style = {} }) => (
+      <div style={{
+        backgroundColor: colors.white, borderRadius: '8px', border: `1px solid ${colors.border}`,
+        padding: '20px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)', ...style
+      }}>
+        {children}
+      </div>
+    );
+
+    const Button = ({ children, variant = 'primary', size = 'md', iconName, disabled, onClick, style = {} }) => {
+      const variants = {
+        primary: { bg: colors.primary, hoverBg: colors.primaryDark, text: colors.white, border: 'none' },
+        secondary: { bg: colors.white, hoverBg: colors.background, text: colors.slate, border: `1px solid ${colors.border}` },
+        danger: { bg: colors.white, hoverBg: colors.errorLight, text: colors.error, border: `1px solid ${colors.error}` },
+        ghost: { bg: 'transparent', hoverBg: colors.background, text: colors.slateLight, border: 'none' },
+      };
+      const sizes = { sm: { padding: '6px 12px', fontSize: '13px' }, md: { padding: '10px 20px', fontSize: '14px' }, lg: { padding: '14px 28px', fontSize: '16px' } };
+      const v = variants[variant];
+      const s = sizes[size];
+      return (
+        <button onClick={onClick} disabled={disabled} style={{
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+          padding: s.padding, fontSize: s.fontSize, fontWeight: 600, borderRadius: '6px',
+          backgroundColor: disabled ? colors.border : v.bg, color: disabled ? colors.slateLight : v.text,
+          border: v.border, cursor: disabled ? 'not-allowed' : 'pointer', transition: 'all 0.15s ease', ...style
+        }}>
+          {iconName && <Icon name={iconName} size={16} />}
+          {children}
+        </button>
+      );
+    };
+
+    const StatCard = ({ iconName, label, value, color = colors.primary }) => (
+      <Card style={{ flex: 1, minWidth: '180px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <div style={{
+            width: '40px', height: '40px', borderRadius: '8px', backgroundColor: `${color}15`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Icon name={iconName} size={20} color={color} />
+          </div>
+          <div>
+            <div style={{ fontSize: '13px', color: colors.slateLight, marginBottom: '4px' }}>{label}</div>
+            <div style={{ fontSize: '24px', fontWeight: 700, color: colors.slate }}>{value}</div>
+          </div>
+        </div>
+      </Card>
+    );
+
+    const Checkbox = ({ checked, onChange }) => (
+      <div onClick={onChange} style={{
+        width: '20px', height: '20px', borderRadius: '4px',
+        border: checked ? 'none' : `2px solid ${colors.border}`,
+        backgroundColor: checked ? colors.primary : colors.white,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.15s ease',
+      }}>
+        {checked && <Icon name="check" size={14} color={colors.white} />}
+      </div>
+    );
+
+    const ExpandableTable = ({ title, iconName, columns, data, expanded, onToggle }) => (
+      <Card style={{ marginTop: '16px' }}>
+        <div onClick={onToggle} style={{
+          display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: expanded ? '16px' : 0,
+        }}>
+          <Icon name={expanded ? 'chevron-down' : 'chevron-right'} size={20} color={colors.slateLight} />
+          <Icon name={iconName} size={20} color={colors.primary} />
+          <span style={{ fontWeight: 600, color: colors.slate }}>{title}</span>
+          <Badge variant="successLight" size="sm">{data.length}</Badge>
+        </div>
+        {expanded && (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+              <thead>
+                <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                  {columns.map((col, i) => (
+                    <th key={i} style={{
+                      padding: '12px 16px', textAlign: col.align || 'left', fontWeight: 600,
+                      color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px',
+                    }}>{col.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((row, i) => (
+                  <tr key={i} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                    {columns.map((col, j) => (
+                      <td key={j} style={{ padding: '12px 16px', textAlign: col.align || 'left', color: colors.slate }}>
+                        {col.render ? col.render(row[col.key], row) : row[col.key]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+    );
+
+    const MatchCard = ({ match, index, onToggle }) => {
+      const tierColors = { 1: { variant: 'blueLight', label: 'Tier 1' }, 2: { variant: 'purpleLight', label: 'Tier 2' }, 3: { variant: 'orangeLight', label: 'Tier 3' } };
+      const confidenceColors = { exact: 'successLight', high: 'successLight', medium: 'warningLight', low: 'errorLight' };
+      const tier = tierColors[match.tier];
+      const formatCurrency = (amount) => `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+      return (
+        <Card style={{ marginBottom: '12px' }}>
+          <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ paddingTop: '4px' }}>
+              <Checkbox checked={match.approved} onChange={() => onToggle(index)} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                <Badge variant={tier.variant}>{tier.label}</Badge>
+                <Badge variant={confidenceColors[match.confidence]}>{match.confidence}</Badge>
+                <span style={{ color: colors.slateLight, fontSize: '13px' }}>•</span>
+                <span style={{ fontWeight: 600, color: colors.slate }}>{match.paymentId}</span>
+                <span style={{ color: colors.slateLight }}>→</span>
+                <span style={{ color: colors.secondary, fontWeight: 500 }}>{match.invoiceIds.join(', ')}</span>
+              </div>
+              <div style={{ display: 'flex', gap: '32px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: colors.slateLight, marginBottom: '2px' }}>Payment Amount</div>
+                  <div style={{ fontSize: '18px', fontWeight: 600, color: colors.slate }}>{formatCurrency(match.paymentAmount)}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '12px', color: colors.slateLight, marginBottom: '2px' }}>Amount Applied</div>
+                  <div style={{ fontSize: '18px', fontWeight: 600, color: colors.primary }}>{formatCurrency(match.amountApplied)}</div>
+                </div>
+                {match.writeOff && (
+                  <div>
+                    <div style={{ fontSize: '12px', color: colors.slateLight, marginBottom: '2px' }}>Write-off</div>
+                    <div style={{ fontSize: '18px', fontWeight: 600, color: colors.warning }}>{formatCurrency(match.writeOff)}</div>
+                  </div>
+                )}
+              </div>
+              <div style={{
+                backgroundColor: colors.background, borderRadius: '8px', padding: '16px', borderLeft: `4px solid ${colors.secondary}`,
+              }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px',
+                  color: colors.secondary, fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px',
+                }}>
+                  <Icon name="sparkles" size={14} />
+                  AI Analysis
+                </div>
+                <p style={{ margin: 0, color: colors.slate, fontSize: '14px', lineHeight: 1.6, fontFamily: 'Georgia, serif' }}>
+                  {match.reasoning}
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      );
+    };
+
+    // Main App
+    function App() {
+      const [currentView, setCurrentView] = useState('connect');
+      const [connected, setConnected] = useState(false);
+      const [realmId, setRealmId] = useState(null);
+      const [closeDate, setCloseDate] = useState('2024-01-30');
+      const [runStatus, setRunStatus] = useState('idle');
+      const [matches, setMatches] = useState(mockMatchesData);
+      const [invoicesExpanded, setInvoicesExpanded] = useState(false);
+      const [paymentsExpanded, setPaymentsExpanded] = useState(false);
+      const [executionStatus, setExecutionStatus] = useState('idle');
+
+      const formatCurrency = (amount) => `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      const totalMatched = matches.filter(m => m.approved).reduce((sum, m) => sum + m.amountApplied, 0);
+      const totalWriteOff = matches.filter(m => m.approved && m.writeOff).reduce((sum, m) => sum + (m.writeOff || 0), 0);
+      const unmatchedPayments = mockPayments.length - matches.filter(m => m.approved).length;
+
+      const toggleMatch = (index) => {
+        setMatches(prev => prev.map((m, i) => i === index ? { ...m, approved: !m.approved } : m));
+      };
+
+      const handleConnect = () => {
+        setTimeout(() => { setConnected(true); setRealmId('123456789'); }, 1000);
+      };
+
+      const handleDisconnect = () => {
+        setConnected(false); setRealmId(null); setCurrentView('connect');
+      };
+
+      const handleStartRun = () => {
+        setCurrentView('progress'); setRunStatus('pulling_data');
+        setTimeout(() => setRunStatus('matching'), 2000);
+        setTimeout(() => { setRunStatus('ready_for_review'); setCurrentView('review'); }, 4000);
+      };
+
+      const handleExecute = () => {
+        setCurrentView('execution'); setExecutionStatus('executing');
+        setTimeout(() => setExecutionStatus('completed'), 2000);
+      };
+
+      const invoiceColumns = [
+        { key: 'id', label: 'ID' },
+        { key: 'docNum', label: 'Doc #' },
+        { key: 'customer', label: 'Customer' },
+        { key: 'date', label: 'Date' },
+        { key: 'dueDate', label: 'Due Date' },
+        { key: 'balance', label: 'Balance', align: 'right', render: (v) => formatCurrency(v) },
+      ];
+
+      const paymentColumns = [
+        { key: 'id', label: 'ID' },
+        { key: 'customer', label: 'Customer' },
+        { key: 'date', label: 'Date' },
+        { key: 'total', label: 'Total', align: 'right', render: (v) => formatCurrency(v) },
+        { key: 'unapplied', label: 'Unapplied', align: 'right', render: (v) => formatCurrency(v) },
+        { key: 'ref', label: 'Ref #' },
+        { key: 'memo', label: 'Memo' },
+      ];
+
+      return (
+        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: colors.background, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+          {/* Sidebar */}
+          <div style={{ width: '260px', backgroundColor: colors.white, borderRight: `1px solid ${colors.border}`, padding: '24px 0', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: '0 24px 24px', borderBottom: `1px solid ${colors.border}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: colors.primary, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="refresh-cw" size={22} color={colors.white} />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, color: colors.slate, fontSize: '16px' }}>AR Close</div>
+                  <div style={{ fontSize: '12px', color: colors.slateLight }}>Automation</div>
+                </div>
+              </div>
+            </div>
+            <nav style={{ padding: '16px 12px', flex: 1 }}>
+              {[
+                { id: 'connect', iconName: 'link-2', label: 'Connection' },
+                { id: 'review', iconName: 'file-text', label: 'Current Run', disabled: !connected },
+                { id: 'history', iconName: 'history', label: 'Run History', disabled: !connected },
+              ].map(item => (
+                <button key={item.id} onClick={() => !item.disabled && setCurrentView(item.id)} disabled={item.disabled}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', marginBottom: '4px',
+                    borderRadius: '6px', border: 'none',
+                    backgroundColor: currentView === item.id ? colors.primaryLight : 'transparent',
+                    color: item.disabled ? colors.border : currentView === item.id ? colors.primaryDark : colors.slateLight,
+                    fontSize: '14px', fontWeight: currentView === item.id ? 600 : 400,
+                    cursor: item.disabled ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all 0.15s ease',
+                  }}>
+                  <Icon name={item.iconName} size={18} />
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+            {connected && (
+              <div style={{ padding: '16px 24px', borderTop: `1px solid ${colors.border}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <Icon name="check-circle" size={16} color={colors.primary} />
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: colors.primary }}>Connected</span>
+                </div>
+                <div style={{ fontSize: '12px', color: colors.slateLight }}>Realm: {realmId}</div>
+                <button onClick={handleDisconnect} style={{
+                  marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px',
+                  fontSize: '12px', color: colors.error, backgroundColor: 'transparent',
+                  border: `1px solid ${colors.error}`, borderRadius: '4px', cursor: 'pointer',
+                }}>
+                  <Icon name="log-out" size={14} />
+                  Disconnect
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Main Content */}
+          <div style={{ flex: 1, padding: '32px 40px', overflowY: 'auto' }}>
+            {/* Connect Page */}
+            {currentView === 'connect' && (
+              <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.slate, marginBottom: '8px' }}>Connect to QuickBooks</h1>
+                <p style={{ fontSize: '16px', color: colors.slateLight, marginBottom: '32px' }}>Link your QuickBooks Online account to start automating AR close</p>
+                <Card>
+                  {!connected ? (
+                    <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                      <div style={{ width: '80px', height: '80px', borderRadius: '16px', backgroundColor: colors.primaryLight, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                        <Icon name="link-2" size={36} color={colors.primary} />
+                      </div>
+                      <h2 style={{ fontSize: '20px', fontWeight: 600, color: colors.slate, marginBottom: '12px' }}>Not Connected</h2>
+                      <p style={{ fontSize: '14px', color: colors.slateLight, marginBottom: '24px', maxWidth: '360px', margin: '0 auto 24px' }}>Connect your QuickBooks Online account to pull invoices and payments for matching</p>
+                      <Button onClick={handleConnect} size="lg" iconName="external-link">Connect to QuickBooks</Button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                        <Icon name="check-circle" size={24} color={colors.primary} />
+                        <span style={{ fontSize: '18px', fontWeight: 600, color: colors.primary }}>Connected to QuickBooks</span>
+                        <Badge variant="successLight">Realm: {realmId}</Badge>
+                      </div>
+                      <div style={{ padding: '24px', backgroundColor: colors.background, borderRadius: '8px', marginTop: '24px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 600, color: colors.slate, marginBottom: '16px' }}>Start New Close Run</h3>
+                        <div style={{ marginBottom: '20px' }}>
+                          <label style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: colors.slateLight, marginBottom: '8px' }}>Close Date</label>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Icon name="calendar" size={18} color={colors.slateLight} />
+                            <input type="date" value={closeDate} onChange={(e) => setCloseDate(e.target.value)}
+                              style={{ padding: '10px 14px', fontSize: '14px', border: `1px solid ${colors.border}`, borderRadius: '6px', color: colors.slate, width: '180px' }} />
+                          </div>
+                        </div>
+                        <Button onClick={handleStartRun} iconName="play">Start Run</Button>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              </div>
+            )}
+
+            {/* Progress Page */}
+            {currentView === 'progress' && (
+              <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.slate, marginBottom: '32px' }}>Running Close Process</h1>
+                <Card>
+                  <div style={{ padding: '40px 20px', textAlign: 'center' }}>
+                    <Icon name="loader-2" size={48} color={colors.primary} style={{ marginBottom: '24px' }} />
+                    <div style={{ marginBottom: '32px' }}>
+                      <h2 style={{ fontSize: '20px', fontWeight: 600, color: colors.slate, marginBottom: '8px' }}>
+                        {runStatus === 'pulling_data' && 'Pulling data from QuickBooks...'}
+                        {runStatus === 'matching' && 'Running AI matching...'}
+                        {runStatus === 'ready_for_review' && 'Ready for review!'}
+                      </h2>
+                      <p style={{ fontSize: '14px', color: colors.slateLight }}>Close Date: {closeDate}</p>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                      {['pulling_data', 'matching', 'ready_for_review'].map((step, i) => {
+                        const statuses = ['pulling_data', 'matching', 'ready_for_review'];
+                        const currentIndex = statuses.indexOf(runStatus);
+                        const stepIndex = statuses.indexOf(step);
+                        const isComplete = stepIndex < currentIndex;
+                        const isCurrent = stepIndex === currentIndex;
+                        return (
+                          <div key={step} style={{
+                            width: '100px', height: '4px', borderRadius: '2px',
+                            backgroundColor: isComplete || isCurrent ? colors.primary : colors.border, transition: 'background-color 0.3s ease',
+                          }} />
+                        );
+                      })}
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Review Page */}
+            {currentView === 'review' && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                  <div>
+                    <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.slate, marginBottom: '4px' }}>Review Match Proposals</h1>
+                    <p style={{ fontSize: '14px', color: colors.slateLight }}>Close Date: {closeDate} • Run ID: run_8a7f3c2d</p>
+                  </div>
+                  <Badge variant="success" size="md"><Icon name="check-circle" size={14} />Ready for Review</Badge>
+                </div>
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                  <StatCard iconName="file-text" label="Open Invoices" value={mockInvoices.length} color={colors.secondary} />
+                  <StatCard iconName="credit-card" label="Unapplied Payments" value={mockPayments.length} color={colors.purple} />
+                  <StatCard iconName="dollar-sign" label="Total AR Balance" value={formatCurrency(20200)} color={colors.primary} />
+                </div>
+                <ExpandableTable title="Open Invoices" iconName="file-text" columns={invoiceColumns} data={mockInvoices} expanded={invoicesExpanded} onToggle={() => setInvoicesExpanded(!invoicesExpanded)} />
+                <ExpandableTable title="Unapplied Payments" iconName="credit-card" columns={paymentColumns} data={mockPayments} expanded={paymentsExpanded} onToggle={() => setPaymentsExpanded(!paymentsExpanded)} />
+                <div style={{ marginTop: '32px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 600, color: colors.slate, marginBottom: '16px' }}>Match Proposals</h2>
+                  {matches.map((match, index) => (
+                    <MatchCard key={index} match={match} index={index} onToggle={toggleMatch} />
+                  ))}
+                </div>
+                <Card style={{ marginTop: '24px', position: 'sticky', bottom: '20px', boxShadow: '0 -4px 20px rgba(0,0,0,0.1)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+                      <div>
+                        <span style={{ fontSize: '13px', color: colors.slateLight }}>Total Matched:</span>
+                        <span style={{ fontSize: '18px', fontWeight: 700, color: colors.primary, marginLeft: '8px' }}>{formatCurrency(totalMatched)}</span>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '13px', color: colors.slateLight }}>Write-offs:</span>
+                        <span style={{ fontSize: '18px', fontWeight: 700, color: colors.warning, marginLeft: '8px' }}>{formatCurrency(totalWriteOff)}</span>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '13px', color: colors.slateLight }}>Unmatched:</span>
+                        <span style={{ fontSize: '14px', fontWeight: 500, color: colors.slate, marginLeft: '8px' }}>{unmatchedPayments} payments, 0 invoices</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <Button variant="danger" iconName="x">Reject All</Button>
+                      <Button onClick={handleExecute} iconName="check">Approve & Execute</Button>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {/* Execution Results */}
+            {currentView === 'execution' && (
+              <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+                <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.slate, marginBottom: '32px' }}>Execution Results</h1>
+                {executionStatus === 'executing' ? (
+                  <Card>
+                    <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+                      <Icon name="loader-2" size={48} color={colors.primary} style={{ marginBottom: '24px' }} />
+                      <h2 style={{ fontSize: '20px', fontWeight: 600, color: colors.slate, marginBottom: '8px' }}>Applying matches to QuickBooks...</h2>
+                      <p style={{ fontSize: '14px', color: colors.slateLight }}>This may take a few moments</p>
+                    </div>
+                  </Card>
+                ) : (
+                  <>
+                    <Card style={{ marginBottom: '24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                        <Icon name="check-circle" size={28} color={colors.primary} />
+                        <div>
+                          <h2 style={{ fontSize: '20px', fontWeight: 600, color: colors.primary, margin: 0 }}>Execution Complete</h2>
+                          <p style={{ fontSize: '14px', color: colors.slateLight, margin: 0 }}>All approved matches have been applied to QuickBooks</p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+                        <div style={{ padding: '16px 24px', backgroundColor: colors.primaryLight, borderRadius: '8px', textAlign: 'center', minWidth: '140px' }}>
+                          <div style={{ fontSize: '32px', fontWeight: 700, color: colors.primary }}>4</div>
+                          <div style={{ fontSize: '13px', color: colors.primaryDark }}>Actions Completed</div>
+                        </div>
+                        <div style={{ padding: '16px 24px', backgroundColor: colors.primaryLight, borderRadius: '8px', textAlign: 'center', minWidth: '140px' }}>
+                          <div style={{ fontSize: '32px', fontWeight: 700, color: colors.primary }}>{formatCurrency(totalMatched)}</div>
+                          <div style={{ fontSize: '13px', color: colors.primaryDark }}>Total Applied</div>
+                        </div>
+                      </div>
+                    </Card>
+                    <Card>
+                      <h3 style={{ fontSize: '16px', fontWeight: 600, color: colors.slate, marginBottom: '16px' }}>Transaction Log</h3>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                        <thead>
+                          <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                            <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Action</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Payment</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Invoices</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>QBO Txn ID</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {mockExecutionResults.map((result, i) => (
+                            <tr key={i} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                              <td style={{ padding: '14px 16px', color: colors.slate }}>{result.actionType}</td>
+                              <td style={{ padding: '14px 16px', color: colors.secondary, fontWeight: 500 }}>{result.paymentId}</td>
+                              <td style={{ padding: '14px 16px', color: colors.slate }}>{result.invoiceIds.join(', ')}</td>
+                              <td style={{ padding: '14px 16px', color: colors.slateLight, fontFamily: 'monospace', fontSize: '13px' }}>{result.qboTxnId}</td>
+                              <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                                <Badge variant={result.status === 'success' ? 'success' : 'error'}>
+                                  <Icon name={result.status === 'success' ? 'check-circle' : 'x-circle'} size={12} />
+                                  {result.status}
+                                </Badge>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </Card>
+                    <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+                      <Button variant="secondary" onClick={() => setCurrentView('connect')}>Back to Dashboard</Button>
+                      <Button onClick={() => setCurrentView('history')} iconName="history">View Run History</Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* Run History */}
+            {currentView === 'history' && (
+              <div style={{ maxWidth: '900px' }}>
+                <h1 style={{ fontSize: '28px', fontWeight: 700, color: colors.slate, marginBottom: '8px' }}>Run History</h1>
+                <p style={{ fontSize: '14px', color: colors.slateLight, marginBottom: '24px' }}>View past AR close runs and their results</p>
+                <Card>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
+                        <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Run ID</th>
+                        <th style={{ padding: '14px 16px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Close Date</th>
+                        <th style={{ padding: '14px 16px', textAlign: 'center', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Status</th>
+                        <th style={{ padding: '14px 16px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Matches</th>
+                        <th style={{ padding: '14px 16px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Total Matched</th>
+                        <th style={{ padding: '14px 16px', textAlign: 'center', fontWeight: 600, color: colors.slateLight, fontSize: '12px', textTransform: 'uppercase' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mockRunHistory.map((run, i) => (
+                        <tr key={i} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                          <td style={{ padding: '14px 16px' }}>
+                            <code style={{ fontSize: '13px', color: colors.secondary, backgroundColor: colors.secondaryLight, padding: '4px 8px', borderRadius: '4px' }}>
+                              {run.runId.slice(0, 12)}...
+                            </code>
+                          </td>
+                          <td style={{ padding: '14px 16px', color: colors.slate }}>{run.closeDate}</td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                            <Badge variant="success"><Icon name="check-circle" size={12} />{run.status}</Badge>
+                          </td>
+                          <td style={{ padding: '14px 16px', textAlign: 'right', color: colors.slate, fontWeight: 500 }}>{run.matchCount}</td>
+                          <td style={{ padding: '14px 16px', textAlign: 'right', color: colors.primary, fontWeight: 600 }}>{formatCurrency(run.totalMatched)}</td>
+                          <td style={{ padding: '14px 16px', textAlign: 'center' }}>
+                            <Button variant="ghost" size="sm">View Details</Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
