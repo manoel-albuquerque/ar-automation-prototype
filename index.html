@@ -1157,30 +1157,50 @@
                   </div>
                 </Card>
 
-                {/* QBO vs External Billing Gap */}
+                {/* QBO vs All External Sources Gap */}
                 <Card style={{ marginBottom: '16px', border: `1px solid ${colors.warning}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                     <h3 style={{ fontSize: '14px', fontWeight: 600, color: colors.slate, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icon name="alert-triangle" size={16} color={colors.warning} /> Invoice Gap: QBO vs External Sources
+                      <Icon name="alert-triangle" size={16} color={colors.warning} /> Invoice Gap: QBO vs All External Sources
                     </h3>
-                    <Badge variant="warningLight">2 Discrepancies Found</Badge>
+                    <Badge variant="warningLight">8 Discrepancies Found</Badge>
                   </div>
 
+                  {/* Combined Summary */}
                   <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1, minWidth: '180px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
+                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
                       <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>QBO Invoices (Jan)</div>
                       <div style={{ fontSize: '20px', fontWeight: 700, color: colors.slate }}>47</div>
                       <div style={{ fontSize: '12px', color: colors.slateLight }}>{fmt(156750)}</div>
                     </div>
-                    <div style={{ flex: 1, minWidth: '180px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
-                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Stripe Billing Register</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.slate }}>52</div>
-                      <div style={{ fontSize: '12px', color: colors.slateLight }}>{fmt(162500)}</div>
+                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
+                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>All External Sources</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.slate }}>58</div>
+                      <div style={{ fontSize: '12px', color: colors.slateLight }}>{fmt(178625)} total</div>
                     </div>
-                    <div style={{ flex: 1, minWidth: '180px', padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px' }}>
+                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px' }}>
                       <div style={{ fontSize: '11px', color: '#E65100', marginBottom: '4px' }}>Missing in QBO</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: '#E65100' }}>2</div>
-                      <div style={{ fontSize: '12px', color: '#E65100' }}>{fmt(2250)} revenue at risk</div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, color: '#E65100' }}>8</div>
+                      <div style={{ fontSize: '12px', color: '#E65100' }}>{fmt(14325)} revenue at risk</div>
+                    </div>
+                  </div>
+
+                  {/* Source Breakdown */}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '120px', padding: '10px', border: `1px solid ${colors.border}`, borderRadius: '8px', borderLeft: '3px solid #635BFF' }}>
+                      <div style={{ fontSize: '10px', color: colors.slateLight, marginBottom: '2px' }}>Stripe</div>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: colors.slate }}>52 invoices</div>
+                      <div style={{ fontSize: '11px', color: colors.error }}>2 missing</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: '120px', padding: '10px', border: `1px solid ${colors.border}`, borderRadius: '8px', borderLeft: '3px solid #EA4335' }}>
+                      <div style={{ fontSize: '10px', color: colors.slateLight, marginBottom: '2px' }}>Gmail</div>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: colors.slate }}>3 invoices</div>
+                      <div style={{ fontSize: '11px', color: colors.error }}>2 missing</div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: '120px', padding: '10px', border: `1px solid ${colors.border}`, borderRadius: '8px', borderLeft: '3px solid #217346' }}>
+                      <div style={{ fontSize: '10px', color: colors.slateLight, marginBottom: '2px' }}>Spreadsheet</div>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: colors.slate }}>156 records</div>
+                      <div style={{ fontSize: '11px', color: colors.error }}>4 missing</div>
                     </div>
                   </div>
 
@@ -1192,71 +1212,76 @@
                     <a href="#" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: colors.secondary, textDecoration: 'none', padding: '6px 12px', backgroundColor: colors.secondaryLight, borderRadius: '4px' }}>
                       <Icon name="file-text" size={14} /> View AR Aging Detail
                     </a>
-                    <a href="#" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: colors.secondary, textDecoration: 'none', padding: '6px 12px', backgroundColor: colors.secondaryLight, borderRadius: '4px' }}>
-                      <Icon name="external-link" size={14} /> View Stripe Billing Register
-                    </a>
                   </div>
 
-                  {/* Expandable Customer Comparison */}
+                  {/* Expandable Customer Comparison - All Sources */}
                   <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
                     <div onClick={() => toggleSection('gapCustomers')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.gapCustomers ? '12px' : 0 }}>
-                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.slate }}>View Comparison by Customer</span>
+                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.slate }}>View Comparison by Customer (All Sources)</span>
                       <Icon name={expandedSections.gapCustomers ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
                     </div>
 
                     {expandedSections.gapCustomers && (
                       <div style={{ border: `1px solid ${colors.border}`, borderRadius: '8px', overflow: 'hidden' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
                           <thead>
                             <tr style={{ backgroundColor: colors.background }}>
-                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Customer</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>QBO Invoices</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>QBO Amount</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Stripe Charges</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Stripe Amount</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Variance</th>
-                              <th style={{ padding: '10px', textAlign: 'center', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Status</th>
+                              <th style={{ padding: '8px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '9px', textTransform: 'uppercase' }}>Customer</th>
+                              <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '9px', textTransform: 'uppercase' }}>QBO</th>
+                              <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: '#635BFF', fontSize: '9px', textTransform: 'uppercase' }}>Stripe</th>
+                              <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: '#EA4335', fontSize: '9px', textTransform: 'uppercase' }}>Gmail</th>
+                              <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: '#217346', fontSize: '9px', textTransform: 'uppercase' }}>Spreadsheet</th>
+                              <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '9px', textTransform: 'uppercase' }}>External Total</th>
+                              <th style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '9px', textTransform: 'uppercase' }}>Variance</th>
+                              <th style={{ padding: '8px', textAlign: 'center', fontWeight: 600, color: colors.slateLight, fontSize: '9px', textTransform: 'uppercase' }}>Status</th>
                             </tr>
                           </thead>
                           <tbody>
                             {[
-                              { name: 'Acme Corp', qboCount: 8, qboAmt: 51000, stripeCount: 8, stripeAmt: 51000, status: 'matched' },
-                              { name: 'TechStart LLC', qboCount: 6, qboAmt: 30750, stripeCount: 6, stripeAmt: 30750, status: 'matched' },
-                              { name: 'Global Industries', qboCount: 5, qboAmt: 38950, stripeCount: 5, stripeAmt: 38950, status: 'matched' },
-                              { name: 'Smith & Co', qboCount: 4, qboAmt: 15200, stripeCount: 4, stripeAmt: 15200, status: 'matched' },
-                              { name: 'Beta Holdings', qboCount: 3, qboAmt: 13500, stripeCount: 3, stripeAmt: 13500, status: 'matched' },
-                              { name: 'NewCo Inc', qboCount: 0, qboAmt: 0, stripeCount: 1, stripeAmt: 1500, status: 'missing_qbo' },
-                              { name: 'FastGrow LLC', qboCount: 0, qboAmt: 0, stripeCount: 1, stripeAmt: 750, status: 'missing_qbo' },
-                              { name: 'Old Client Inc', qboCount: 2, qboAmt: 2350, stripeCount: 2, stripeAmt: 2350, status: 'matched' },
-                              { name: 'Other Customers', qboCount: 19, qboAmt: 5000, stripeCount: 22, stripeAmt: 8500, status: 'review' },
+                              { name: 'Acme Corp', qboAmt: 51000, stripeAmt: 51000, gmailAmt: 0, ssAmt: 51000, status: 'matched' },
+                              { name: 'TechStart LLC', qboAmt: 30750, stripeAmt: 30750, gmailAmt: 0, ssAmt: 30750, status: 'matched' },
+                              { name: 'Global Industries', qboAmt: 38950, stripeAmt: 38950, gmailAmt: 0, ssAmt: 38950, status: 'matched' },
+                              { name: 'Smith & Co', qboAmt: 15200, stripeAmt: 15200, gmailAmt: 0, ssAmt: 15200, status: 'matched' },
+                              { name: 'Beta Holdings', qboAmt: 13500, stripeAmt: 13500, gmailAmt: 0, ssAmt: 13500, status: 'matched' },
+                              { name: 'Vendor Systems Inc', qboAmt: 0, stripeAmt: 0, gmailAmt: 3200, ssAmt: 0, status: 'missing_qbo' },
+                              { name: 'Cloud Services Co', qboAmt: 0, stripeAmt: 0, gmailAmt: 875, ssAmt: 0, status: 'missing_qbo' },
+                              { name: 'Midwest Manufacturing', qboAmt: 0, stripeAmt: 0, gmailAmt: 0, ssAmt: 4200, status: 'missing_qbo' },
+                              { name: 'Pacific Trade Co', qboAmt: 0, stripeAmt: 0, gmailAmt: 0, ssAmt: 1850, status: 'missing_qbo' },
+                              { name: 'NewCo Inc', qboAmt: 0, stripeAmt: 1500, gmailAmt: 0, ssAmt: 0, status: 'missing_qbo' },
+                              { name: 'FastGrow LLC', qboAmt: 0, stripeAmt: 750, gmailAmt: 0, ssAmt: 0, status: 'missing_qbo' },
+                              { name: 'Old Client Inc', qboAmt: 2350, stripeAmt: 2350, gmailAmt: 0, ssAmt: 2350, status: 'matched' },
+                              { name: 'Other Customers', qboAmt: 5000, stripeAmt: 8500, gmailAmt: 0, ssAmt: 6000, status: 'review' },
                             ].map((cust, i) => {
-                              const variance = cust.stripeAmt - cust.qboAmt;
+                              const externalTotal = Math.max(cust.stripeAmt, cust.gmailAmt, cust.ssAmt);
+                              const variance = externalTotal - cust.qboAmt;
                               return (
                                 <tr key={i} style={{ borderTop: `1px solid ${colors.border}`, backgroundColor: cust.status === 'missing_qbo' ? colors.warningLight : 'transparent' }}>
-                                  <td style={{ padding: '10px', fontWeight: 500, color: colors.slate }}>{cust.name}</td>
-                                  <td style={{ padding: '10px', textAlign: 'right', color: colors.slate }}>{cust.qboCount}</td>
-                                  <td style={{ padding: '10px', textAlign: 'right', color: colors.slate }}>{fmt(cust.qboAmt)}</td>
-                                  <td style={{ padding: '10px', textAlign: 'right', color: colors.slate }}>{cust.stripeCount}</td>
-                                  <td style={{ padding: '10px', textAlign: 'right', color: colors.slate }}>{fmt(cust.stripeAmt)}</td>
-                                  <td style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: variance === 0 ? colors.primary : colors.error }}>
+                                  <td style={{ padding: '8px', fontWeight: 500, color: colors.slate }}>{cust.name}</td>
+                                  <td style={{ padding: '8px', textAlign: 'right', color: colors.slate }}>{cust.qboAmt > 0 ? fmt(cust.qboAmt) : '-'}</td>
+                                  <td style={{ padding: '8px', textAlign: 'right', color: cust.stripeAmt > 0 ? '#635BFF' : colors.slateLight }}>{cust.stripeAmt > 0 ? fmt(cust.stripeAmt) : '-'}</td>
+                                  <td style={{ padding: '8px', textAlign: 'right', color: cust.gmailAmt > 0 ? '#EA4335' : colors.slateLight }}>{cust.gmailAmt > 0 ? fmt(cust.gmailAmt) : '-'}</td>
+                                  <td style={{ padding: '8px', textAlign: 'right', color: cust.ssAmt > 0 ? '#217346' : colors.slateLight }}>{cust.ssAmt > 0 ? fmt(cust.ssAmt) : '-'}</td>
+                                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 500, color: colors.slate }}>{fmt(externalTotal)}</td>
+                                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 600, color: variance === 0 ? colors.primary : colors.error }}>
                                     {variance === 0 ? '-' : fmt(variance)}
                                   </td>
-                                  <td style={{ padding: '10px', textAlign: 'center' }}>
+                                  <td style={{ padding: '8px', textAlign: 'center' }}>
                                     <Badge variant={cust.status === 'matched' ? 'successLight' : cust.status === 'missing_qbo' ? 'errorLight' : 'warningLight'} size="sm">
-                                      {cust.status === 'matched' ? 'Matched' : cust.status === 'missing_qbo' ? 'Missing in QBO' : 'Review'}
+                                      {cust.status === 'matched' ? '✓' : cust.status === 'missing_qbo' ? 'Missing' : 'Review'}
                                     </Badge>
                                   </td>
                                 </tr>
                               );
                             })}
                             <tr style={{ borderTop: `2px solid ${colors.border}`, backgroundColor: colors.background }}>
-                              <td style={{ padding: '10px', fontWeight: 700, color: colors.slate }}>TOTAL</td>
-                              <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: colors.slate }}>47</td>
-                              <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: colors.slate }}>{fmt(156750)}</td>
-                              <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: colors.slate }}>52</td>
-                              <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: colors.slate }}>{fmt(162500)}</td>
-                              <td style={{ padding: '10px', textAlign: 'right', fontWeight: 700, color: colors.error }}>{fmt(5750)}</td>
-                              <td style={{ padding: '10px' }}></td>
+                              <td style={{ padding: '8px', fontWeight: 700, color: colors.slate }}>TOTAL</td>
+                              <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: colors.slate }}>{fmt(156750)}</td>
+                              <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#635BFF' }}>{fmt(162500)}</td>
+                              <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#EA4335' }}>{fmt(4075)}</td>
+                              <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: '#217346' }}>{fmt(163800)}</td>
+                              <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: colors.slate }}>{fmt(178625)}</td>
+                              <td style={{ padding: '8px', textAlign: 'right', fontWeight: 700, color: colors.error }}>{fmt(14325)}</td>
+                              <td style={{ padding: '8px' }}></td>
                             </tr>
                           </tbody>
                         </table>
@@ -1264,208 +1289,85 @@
                     )}
                   </div>
 
-                  {/* Missing Invoice Details */}
+                  {/* Missing Invoice Details - All Sources */}
                   <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px', marginTop: '12px' }}>
                     <div onClick={() => toggleSection('missingInvoices')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.missingInvoices ? '12px' : 0 }}>
-                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.error }}>View Missing Invoice Details (2)</span>
+                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.error }}>View All Missing Invoice Details (8)</span>
                       <Icon name={expandedSections.missingInvoices ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
                     </div>
 
                     {expandedSections.missingInvoices && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {[
-                          { stripeId: 'STRIPE-8821', customer: 'NewCo Inc', date: '2024-01-28', amount: 1500, description: 'Enterprise Plan - Monthly', email: 'billing@newco.com' },
-                          { stripeId: 'STRIPE-8834', customer: 'FastGrow LLC', date: '2024-01-29', amount: 750, description: 'Starter Plan - Monthly', email: 'ap@fastgrow.io' },
-                        ].map((inv, i) => (
-                          <div key={i} style={{ padding: '12px', backgroundColor: colors.errorLight, borderRadius: '8px', border: `1px solid ${colors.error}` }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                              <div>
-                                <div style={{ fontWeight: 600, color: colors.slate, fontSize: '14px' }}>{inv.customer}</div>
-                                <div style={{ fontSize: '12px', color: colors.slateLight }}>{inv.stripeId} • {inv.date}</div>
-                              </div>
-                              <div style={{ fontWeight: 700, color: colors.error, fontSize: '16px' }}>{fmt(inv.amount)}</div>
-                            </div>
-                            <div style={{ fontSize: '12px', color: colors.slate, marginBottom: '4px' }}><strong>Description:</strong> {inv.description}</div>
-                            <div style={{ fontSize: '12px', color: colors.slateLight }}><strong>Customer Email:</strong> {inv.email}</div>
-                            <div style={{ marginTop: '8px', padding: '8px', backgroundColor: colors.white, borderRadius: '4px', fontSize: '11px', color: colors.error }}>
-                              <Icon name="alert-triangle" size={12} style={{ marginRight: '4px' }} />
-                              This charge exists in Stripe but has no matching invoice in QBO. Will be flagged for invoice creation in Gap Analysis.
-                            </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {/* Stripe Missing */}
+                        <div>
+                          <div style={{ fontSize: '11px', fontWeight: 600, color: '#635BFF', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ width: '8px', height: '8px', backgroundColor: '#635BFF', borderRadius: '50%' }}></span>
+                            From Stripe (2)
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Gmail Parsed Invoices Gap */}
-                <Card style={{ marginBottom: '16px', border: `1px solid ${colors.warning}` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: colors.slate, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icon name="mail" size={16} color={colors.warning} /> Gmail: Invoices Not in QBO
-                    </h3>
-                    <Badge variant="warningLight">{mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').length} Found</Badge>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
-                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Gmail Invoices Parsed</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.slate }}>{mockGmailInvoices.length}</div>
-                      <div style={{ fontSize: '12px', color: colors.slateLight }}>from email attachments</div>
-                    </div>
-                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.primaryLight, borderRadius: '8px' }}>
-                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Matched to QBO</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.primary }}>{mockGmailInvoices.filter(g => g.matchStatus === 'matched').length}</div>
-                      <div style={{ fontSize: '12px', color: colors.primary }}>invoices matched</div>
-                    </div>
-                    <div style={{ flex: 1, minWidth: '160px', padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px' }}>
-                      <div style={{ fontSize: '11px', color: '#E65100', marginBottom: '4px' }}>Missing in QBO</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: '#E65100' }}>{mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').length}</div>
-                      <div style={{ fontSize: '12px', color: '#E65100' }}>{fmt(mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').reduce((sum, g) => sum + g.amount, 0))} at risk</div>
-                    </div>
-                  </div>
-
-                  {/* Expandable Missing Invoice Details */}
-                  <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
-                    <div onClick={() => toggleSection('gmailMissingInvoices')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.gmailMissingInvoices ? '12px' : 0 }}>
-                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.warning }}>View Missing Invoice Details ({mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').length})</span>
-                      <Icon name={expandedSections.gmailMissingInvoices ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
-                    </div>
-
-                    {expandedSections.gmailMissingInvoices && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').map((inv, i) => (
-                          <div key={i} style={{ padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px', border: `1px solid ${colors.warning}` }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                              <div>
-                                <div style={{ fontWeight: 600, color: colors.slate, fontSize: '14px' }}>{inv.customer}</div>
-                                <div style={{ fontSize: '12px', color: colors.slateLight }}>{inv.id} • {inv.date}</div>
-                              </div>
-                              <div style={{ fontWeight: 700, color: colors.warning, fontSize: '16px' }}>{fmt(inv.amount)}</div>
-                            </div>
-                            <div style={{ fontSize: '12px', color: colors.slate, marginBottom: '4px' }}><strong>Subject:</strong> {inv.subject}</div>
-                            <div style={{ fontSize: '12px', color: colors.slateLight, marginBottom: '4px' }}><strong>From:</strong> {inv.sender}</div>
-                            <div style={{ fontSize: '12px', color: colors.slateLight }}><strong>Attachment:</strong> <a href="#" style={{ color: colors.secondary }}>{inv.attachmentName}</a></div>
-                            <div style={{ marginTop: '8px', padding: '8px', backgroundColor: colors.white, borderRadius: '4px', fontSize: '11px', color: colors.warning }}>
-                              <Icon name="alert-triangle" size={12} style={{ marginRight: '4px' }} />
-                              This invoice attachment was found in Gmail but has no matching invoice in QBO. Will be flagged for invoice creation.
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Gmail Payment Confirmations */}
-                  {mockGmailPayments.filter(p => p.matchStatus === 'missing_in_qbo').length > 0 && (
-                    <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px', marginTop: '12px' }}>
-                      <div onClick={() => toggleSection('gmailMissingPayments')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.gmailMissingPayments ? '12px' : 0 }}>
-                        <span style={{ fontSize: '13px', fontWeight: 500, color: colors.error }}>Payment Confirmations Not in QBO ({mockGmailPayments.filter(p => p.matchStatus === 'missing_in_qbo').length})</span>
-                        <Icon name={expandedSections.gmailMissingPayments ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
-                      </div>
-
-                      {expandedSections.gmailMissingPayments && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {mockGmailPayments.filter(p => p.matchStatus === 'missing_in_qbo').map((pmt, i) => (
-                            <div key={i} style={{ padding: '12px', backgroundColor: colors.errorLight, borderRadius: '8px', border: `1px solid ${colors.error}` }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                          {[
+                            { id: 'STRIPE-8821', customer: 'NewCo Inc', date: '2024-01-28', amount: 1500, description: 'Enterprise Plan - Monthly', email: 'billing@newco.com' },
+                            { id: 'STRIPE-8834', customer: 'FastGrow LLC', date: '2024-01-29', amount: 750, description: 'Starter Plan - Monthly', email: 'ap@fastgrow.io' },
+                          ].map((inv, i) => (
+                            <div key={i} style={{ padding: '10px', backgroundColor: '#F8F7FF', borderRadius: '6px', border: '1px solid #E0DEFF', marginBottom: '6px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div>
-                                  <div style={{ fontWeight: 600, color: colors.slate, fontSize: '14px' }}>{pmt.customer}</div>
-                                  <div style={{ fontSize: '12px', color: colors.slateLight }}>{pmt.id} • {pmt.date}</div>
+                                  <span style={{ fontWeight: 600, color: colors.slate }}>{inv.customer}</span>
+                                  <span style={{ fontSize: '11px', color: colors.slateLight, marginLeft: '8px' }}>{inv.id} • {inv.date}</span>
                                 </div>
-                                <div style={{ fontWeight: 700, color: colors.error, fontSize: '16px' }}>{fmt(pmt.amount)}</div>
+                                <span style={{ fontWeight: 700, color: '#635BFF' }}>{fmt(inv.amount)}</span>
                               </div>
-                              <div style={{ fontSize: '12px', color: colors.slate, marginBottom: '4px' }}><strong>Subject:</strong> {pmt.subject}</div>
-                              <div style={{ fontSize: '12px', color: colors.slateLight }}><strong>From:</strong> {pmt.sender}</div>
-                              <div style={{ marginTop: '8px', padding: '8px', backgroundColor: colors.white, borderRadius: '4px', fontSize: '11px', color: colors.error }}>
-                                <Icon name="alert-circle" size={12} style={{ marginRight: '4px' }} />
-                                Payment confirmation found in Gmail but not recorded in QBO. This may indicate unrecorded cash received.
-                              </div>
+                              <div style={{ fontSize: '11px', color: colors.slateLight, marginTop: '4px' }}>{inv.description}</div>
                             </div>
                           ))}
                         </div>
-                      )}
-                    </div>
-                  )}
-                </Card>
 
-                {/* Spreadsheet Discrepancies */}
-                <Card style={{ marginBottom: '16px', border: `1px solid ${colors.warning}` }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: colors.slate, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icon name="file-spreadsheet" size={16} color={colors.warning} /> Uploaded Spreadsheet: Items Not in QBO
-                    </h3>
-                    <Badge variant="warningLight">{mockSpreadsheetData.discrepancies.length} Discrepancies</Badge>
-                  </div>
+                        {/* Gmail Missing */}
+                        <div>
+                          <div style={{ fontSize: '11px', fontWeight: 600, color: '#EA4335', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ width: '8px', height: '8px', backgroundColor: '#EA4335', borderRadius: '50%' }}></span>
+                            From Gmail (2)
+                          </div>
+                          {mockGmailInvoices.filter(g => g.matchStatus === 'missing_in_qbo').map((inv, i) => (
+                            <div key={i} style={{ padding: '10px', backgroundColor: '#FEF3F2', borderRadius: '6px', border: '1px solid #FECDCA', marginBottom: '6px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                  <span style={{ fontWeight: 600, color: colors.slate }}>{inv.customer}</span>
+                                  <span style={{ fontSize: '11px', color: colors.slateLight, marginLeft: '8px' }}>{inv.id} • {inv.date}</span>
+                                </div>
+                                <span style={{ fontWeight: 700, color: '#EA4335' }}>{fmt(inv.amount)}</span>
+                              </div>
+                              <div style={{ fontSize: '11px', color: colors.slateLight, marginTop: '4px' }}>{inv.subject}</div>
+                              <div style={{ fontSize: '10px', color: colors.slateLight }}>Attachment: {inv.attachmentName}</div>
+                            </div>
+                          ))}
+                        </div>
 
-                  <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1, minWidth: '140px', padding: '12px', backgroundColor: colors.background, borderRadius: '8px' }}>
-                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Spreadsheet Records</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.slate }}>{mockSpreadsheetData.totalRecords}</div>
-                      <div style={{ fontSize: '12px', color: colors.slateLight }}>{mockSpreadsheetData.fileName}</div>
-                    </div>
-                    <div style={{ flex: 1, minWidth: '140px', padding: '12px', backgroundColor: colors.primaryLight, borderRadius: '8px' }}>
-                      <div style={{ fontSize: '11px', color: colors.slateLight, marginBottom: '4px' }}>Matched to QBO</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: colors.primary }}>{mockSpreadsheetData.totalRecords - mockSpreadsheetData.discrepancies.length}</div>
-                      <div style={{ fontSize: '12px', color: colors.primary }}>transactions matched</div>
-                    </div>
-                    <div style={{ flex: 1, minWidth: '140px', padding: '12px', backgroundColor: colors.warningLight, borderRadius: '8px' }}>
-                      <div style={{ fontSize: '11px', color: '#E65100', marginBottom: '4px' }}>Discrepancies</div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, color: '#E65100' }}>{mockSpreadsheetData.discrepancies.length}</div>
-                      <div style={{ fontSize: '12px', color: '#E65100' }}>{fmt(mockSpreadsheetData.discrepancies.reduce((sum, d) => sum + d.amount, 0))} total</div>
-                    </div>
-                  </div>
+                        {/* Spreadsheet Missing */}
+                        <div>
+                          <div style={{ fontSize: '11px', fontWeight: 600, color: '#217346', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ width: '8px', height: '8px', backgroundColor: '#217346', borderRadius: '50%' }}></span>
+                            From Spreadsheet (4)
+                          </div>
+                          {mockSpreadsheetData.discrepancies.filter(d => d.type === 'invoice').map((inv, i) => (
+                            <div key={i} style={{ padding: '10px', backgroundColor: '#F0FDF4', borderRadius: '6px', border: '1px solid #BBF7D0', marginBottom: '6px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                  <span style={{ fontWeight: 600, color: colors.slate }}>{inv.customer}</span>
+                                  <span style={{ fontSize: '11px', color: colors.slateLight, marginLeft: '8px' }}>{inv.ref} • {inv.date}</span>
+                                </div>
+                                <span style={{ fontWeight: 700, color: '#217346' }}>{fmt(inv.amount)}</span>
+                              </div>
+                              <div style={{ fontSize: '11px', color: colors.error, marginTop: '4px' }}>{inv.issue}</div>
+                            </div>
+                          ))}
+                        </div>
 
-                  {/* Expandable Discrepancy Details */}
-                  <div style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '12px' }}>
-                    <div onClick={() => toggleSection('spreadsheetDiscrepancies')} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', marginBottom: expandedSections.spreadsheetDiscrepancies ? '12px' : 0 }}>
-                      <span style={{ fontSize: '13px', fontWeight: 500, color: colors.warning }}>View Discrepancy Details ({mockSpreadsheetData.discrepancies.length})</span>
-                      <Icon name={expandedSections.spreadsheetDiscrepancies ? 'chevron-down' : 'chevron-right'} size={18} color={colors.slateLight} />
-                    </div>
-
-                    {expandedSections.spreadsheetDiscrepancies && (
-                      <div style={{ border: `1px solid ${colors.border}`, borderRadius: '8px', overflow: 'hidden' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
-                          <thead>
-                            <tr style={{ backgroundColor: colors.background }}>
-                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Type</th>
-                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Reference</th>
-                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Customer</th>
-                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Date</th>
-                              <th style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Amount</th>
-                              <th style={{ padding: '10px', textAlign: 'left', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Issue</th>
-                              <th style={{ padding: '10px', textAlign: 'center', fontWeight: 600, color: colors.slateLight, fontSize: '10px', textTransform: 'uppercase' }}>Action</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {mockSpreadsheetData.discrepancies.map((disc, i) => (
-                              <tr key={i} style={{ borderTop: `1px solid ${colors.border}`, backgroundColor: colors.warningLight }}>
-                                <td style={{ padding: '10px' }}>
-                                  <Badge variant={disc.type === 'invoice' ? 'purpleLight' : disc.type === 'payment' ? 'blueLight' : 'tealLight'} size="sm">
-                                    {disc.type}
-                                  </Badge>
-                                </td>
-                                <td style={{ padding: '10px', fontFamily: 'monospace', fontSize: '11px', color: colors.slate }}>{disc.ref}</td>
-                                <td style={{ padding: '10px', fontWeight: 500, color: colors.slate }}>{disc.customer}</td>
-                                <td style={{ padding: '10px', color: colors.slateLight }}>{disc.date}</td>
-                                <td style={{ padding: '10px', textAlign: 'right', fontWeight: 600, color: colors.warning }}>{fmt(disc.amount)}</td>
-                                <td style={{ padding: '10px', fontSize: '11px', color: colors.error }}>{disc.issue}</td>
-                                <td style={{ padding: '10px', textAlign: 'center' }}>
-                                  <Badge variant={disc.action === 'investigate' ? 'warningLight' : 'secondaryLight'} size="sm">
-                                    {disc.action === 'create_invoice' ? 'Create Invoice' : disc.action === 'create_credit' ? 'Create Credit' : 'Investigate'}
-                                  </Badge>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                        <div style={{ padding: '10px', backgroundColor: colors.warningLight, borderRadius: '6px', fontSize: '11px', color: '#92400E' }}>
+                          <Icon name="alert-triangle" size={12} style={{ marginRight: '4px' }} />
+                          These {8} invoices exist in external sources but have no matching record in QBO. They will be flagged for invoice creation in the Gap Analysis phase.
+                        </div>
                       </div>
                     )}
-                  </div>
-
-                  <div style={{ marginTop: '12px', padding: '10px', backgroundColor: '#F8F9FA', borderRadius: '6px', fontSize: '11px', color: colors.slateLight }}>
-                    <Icon name="info" size={12} style={{ marginRight: '4px' }} />
-                    <strong style={{ color: colors.slate }}>Source:</strong> {mockSpreadsheetData.fileName} • Uploaded {mockSpreadsheetData.uploadDate} • {mockSpreadsheetData.totalRecords} total records compared
                   </div>
                 </Card>
 
